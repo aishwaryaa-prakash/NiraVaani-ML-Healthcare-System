@@ -93,11 +93,6 @@ NiraVaani enables users to speak their symptoms in their native language and con
 
 ---
 
-## 👥 Team Contributions
-
-* Frontend: [Your Friend Name]
-* Backend & ML: [Your Name]
-
 ---
 
 ## 📌 Future Enhancements
