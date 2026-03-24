@@ -135,7 +135,7 @@ Generates doctor-ready summary:
 
 ##  Tech Stack
 
-* Frontend: HTML / CSS (Basic UI)
+* Frontend: HTML / CSS / React
 * Backend: Python (Flask)
 * Machine Learning:
 
