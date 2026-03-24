@@ -1,0 +1,9 @@
+text,symptom,duration,risk
+fever for 1 day,fever,1,low
+fever for 3 days,fever,3,medium
+high fever and headache,fever,2,high
+body pain for 2 days,body pain,2,low
+chest pain and sweating,chest pain,1,high
+cough for 5 days,cough,5,medium
+severe stomach pain,stomach pain,1,high
+mild fever,fever,1,low
