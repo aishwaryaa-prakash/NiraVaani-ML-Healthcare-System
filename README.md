@@ -137,13 +137,13 @@ Generates doctor-ready summary:
 
 * Frontend: HTML / CSS (Basic UI)
 * Backend: Python (Flask)
-* Machine Learning**:
+* Machine Learning:
 
   * scikit-learn
   * Decision Tree Classifier
   * CountVectorizer
     
-* NLP Techniques**:
+* NLP Techniques:
 
   * Keyword extraction
   * Regex-based pattern matching
