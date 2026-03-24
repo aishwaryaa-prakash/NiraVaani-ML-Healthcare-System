@@ -65,9 +65,9 @@ NiraVaani enables users to speak their symptoms in their native language and con
 ## 🛠️ Tech Stack
 
 * Frontend: HTML/CSS/React
-* Backend: Java / Python
+* Backend:  Python
 * ML: Python (scikit-learn, NLP)
-* Database: MongoDB (optional)
+* Database: MongoDB 
 
 ---
 
