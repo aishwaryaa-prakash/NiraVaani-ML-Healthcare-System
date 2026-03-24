@@ -1,102 +1,210 @@
 # NiraVaani – AI-Powered Voice Healthcare Assistant
 
-## 📌 Overview
+##  Overview
 
-NiraVaani is an AI-powered voice-first healthcare assistant designed to help patients in rural and semi-urban areas communicate symptoms effectively with doctors.
+NiraVaani is an AI-powered healthcare assistant designed to bridge the communication gap between patients and doctors, especially in rural and semi-urban regions.
 
-It converts natural speech into structured medical insights using Machine Learning and NLP.
-
----
-
-## 🚨 Problem Statement
-
-Many patients face difficulty using digital healthcare systems due to:
-
-* Low literacy
-* Language barriers
-* Difficulty typing symptoms
-* Unstructured symptom descriptions
-
-This leads to miscommunication, delayed diagnosis, and increased health risks.
+It converts unstructured natural language input into structured medical insights using Machine Learning and Natural Language Processing (NLP).
 
 ---
 
-## 💡 Solution
+##  Problem Statement
 
-NiraVaani enables users to speak their symptoms in their native language and converts them into structured medical data using AI.
+In many parts of India, particularly rural and semi-urban areas, patients face significant challenges in accessing digital healthcare services due to:
+
+### Low Literacy
+
+* Many patients are unable to read or write effectively
+* Difficulty in typing symptoms into applications
+
+### Language Barriers
+
+* Patients communicate in regional languages or informal expressions
+* Most healthcare platforms are English-based
+
+### Digital Complexity
+
+* Existing systems require navigation skills and medical understanding
+* Not suitable for elderly or first-time users
+
+### Unstructured Symptom Description
+
+Patients describe symptoms informally, for example:
+
+* “Body weak aa irukku”
+* “Konjam fever maari irukku”
+
+These inputs are not medically structured and are difficult for systems to interpret.
 
 ---
 
-## ⚙️ System Architecture
+##  Consequences
 
-1. Voice Input
-2. Speech-to-Text Conversion
-3. NLP Processing (Symptom Extraction)
-4. Smart Clarification
-5. Risk Prediction (ML Model)
-6. Doctor Summary Generation
+* Incomplete or unclear information reaches doctors
+* Increased chances of misdiagnosis
+* Delay in treatment
+* Higher health risks
 
 ---
 
-## 🧠 Machine Learning Components
+##  Proposed Solution
 
-### 1. Speech Recognition
+NiraVaani acts as an AI-powered clinical interpretation layer between patient and doctor**.
 
-* Converts voice to text using ML models
+It enables users to provide symptoms in natural language and converts them into structured, meaningful medical insights.
 
-### 2. NLP Model
+---
+
+##  System Architecture
+
+1. User Input (Text / Voice Simulation)
+2. NLP Processing (Symptom & Context Extraction)
+3. Feature Transformation (CountVectorizer)
+4. ML Model (Decision Tree Classifier)
+5. Risk Prediction (Low / Medium / High)
+6. Explainable AI (Reasoning for prediction)
+7. Structured Output (Doctor-ready summary)
+
+---
+
+##  Key Features
+
+###  Context Understanding Engine
+
+* Identifies multiple related symptoms from natural sentences
+* Example:
+  Input: “I feel weak and not eating properly”
+  Output: Weakness + Appetite Loss
+
+---
+
+###  NLP-Based Information Extraction
 
 * Extracts:
 
   * Symptoms
   * Duration
-  * Severity
 
-### 3. Risk Prediction Model
+---
 
+###  Machine Learning Risk Prediction
+
+* Uses:
+
+  * CountVectorizer (text → numerical features)
+  * Decision Tree Classifier
 * Classifies cases into:
 
-  * Low Risk
-  * Medium Risk
-  * High Risk
+  * Low
+  * Medium
+  * High risk
 
 ---
 
-## 🛠️ Tech Stack
+### Explainable AI (XAI)
 
-* Frontend: HTML/CSS/React
-* Backend:  Python
-* ML: Python (scikit-learn, NLP)
-* Database: MongoDB 
+* Provides reasoning for predictions
+* Example:
 
----
-
-## 📊 Sample Input
-
-"Konjam fever maari irukku, rendu naal aachu"
-
-## 📈 Output
-
-* Symptom: Fever
-* Duration: 2 days
-* Risk Level: Medium
+  * “High risk because chest pain may indicate a serious condition”
 
 ---
 
-## 🚀 Features
+###  Structured Medical Output
 
-* Voice-based interaction
-* Multilingual support
-* Intelligent symptom extraction
-* Risk detection system
-* Doctor-ready reports
+Generates doctor-ready summary:
+
+```json
+{
+  "symptoms": ["Weakness", "Appetite Loss"],
+  "duration": "Not specified",
+  "risk": "high",
+  "explanation": "Possible nutritional or underlying health issue"
+}
+```
 
 ---
 
+### Flask Backend API
+
+* Endpoint: `/predict`
+* Accepts JSON input
+* Returns structured output
+
 ---
 
-## 📌 Future Enhancements
+##  Tech Stack
 
-* Real-time doctor integration
-* Mobile app deployment
-* Advanced multilingual models
+* Frontend: HTML / CSS (Basic UI)
+* Backend: Python (Flask)
+* Machine Learning**:
+
+  * scikit-learn
+  * Decision Tree Classifier
+  * CountVectorizer
+    
+* NLP Techniques**:
+
+  * Keyword extraction
+  * Regex-based pattern matching
+  Tools:
+  * Postman (API testing)
+  * GitHub (version control)
+
+
+## How to Run the Project
+
+### Step 1: Navigate to ML folder
+
+```bash
+cd ml_model
+```
+
+### Step 2: Activate virtual environment
+
+```bash
+source venv/bin/activate
+```
+
+### Step 3: Train the model
+
+```bash
+python train_model.py
+```
+
+### Step 4: Run backend server
+
+```bash
+cd ../backend
+python app.py
+```
+
+### Step 5: Test API using Postman
+
+* URL: `http://127.0.0.1:5000/predict`
+* Method: POST
+* Body:
+
+```json
+{
+  "text": "fever for 3 days"
+}
+```
+
+---
+
+## Future Enhancements
+
+*  Voice-based input (Speech-to-Text)
+*  Multilingual support
+*  Personal health memory (history tracking)
+*  Hyper-local disease intelligence
+*  Doctor assist dashboard
+*  Advanced conversational AI
+
+##  Conclusion
+
+NiraVaani demonstrates how AI can simplify healthcare accessibility by transforming unstructured human language into structured clinical insights, improving communication, and enabling faster, more accurate decision-making.
+
+It serves as a strong foundation for building scalable, real-world healthcare solutions.
+
