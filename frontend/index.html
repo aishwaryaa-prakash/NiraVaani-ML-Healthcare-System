@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NiraVaani Healthcare Assistant</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f7fa;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 400px;
+            margin: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-top: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .voice-btn {
+            background: #28a745;
+            margin-left: 5px;
+        }
+
+        .output {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>🩺 NiraVaani</h2>
+    <p>Enter your symptoms:</p>
+
+    <input type="text" id="symptoms" placeholder="e.g. fever for 3 days">
+
+    <br>
+
+    <!-- Voice Button -->
+    <button class="voice-btn" onclick="startVoice()">🎤 Speak</button>
+
+    <br>
+
+    <button onclick="getPrediction()">Analyze</button>
+
+    <div class="output" id="result"></div>
+</div>
+
+<script>
+
+async function getPrediction() {
+    const text = document.getElementById("symptoms").value;
+
+    const response = await fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ text: text })
+    });
+
+    const data = await response.json();
+
+    document.getElementById("result").innerHTML = `
+        <h3>🧾 Result</h3>
+        <p><b>Symptoms:</b> ${data.symptoms.join(", ")}</p>
+        <p><b>Duration:</b> ${data.duration}</p>
+        <p><b>Risk Level:</b> ${data.risk}</p>
+        <p><b>Explanation:</b> ${data.explanation}</p>
+    `;
+}
+
+
+// 🎤 Voice Recognition
+function startVoice() {
+    if (!('webkitSpeechRecognition' in window)) {
+        alert("Voice recognition not supported in this browser. Please use Chrome.");
+        return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+
+    recognition.onstart = function() {
+        console.log("Voice recognition started...");
+    };
+
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("symptoms").value = transcript;
+    };
+
+    recognition.onerror = function(event) {
+        console.error("Error occurred:", event.error);
+    };
+
+    recognition.start();
+}
+
+</script>
+
+</body>
+</html>

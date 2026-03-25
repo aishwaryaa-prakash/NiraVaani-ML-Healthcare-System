@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import pickle
 import re
 
 app = Flask(__name__)
+CORS(app)
 
 # Load ML model
 model = pickle.load(open("../ml_model/model.pkl", "rb"))
