@@ -5,12 +5,6 @@
 <title>NiraVaani AI</title>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
     font-family: 'Segoe UI', sans-serif;
     height: 100vh;
@@ -18,175 +12,110 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0;
 }
 
-/* Glass card */
 .container {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255,255,255,0.15);
     backdrop-filter: blur(20px);
     padding: 40px;
     border-radius: 20px;
     width: 450px;
     color: white;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     text-align: center;
 }
 
-/* Input */
-input {
+input, button {
     width: 100%;
     padding: 12px;
     border-radius: 10px;
     border: none;
     margin-top: 10px;
-    outline: none;
 }
 
-/* Buttons */
-button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    margin-top: 12px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: 0.3s;
-}
+.voice-btn { background: #22c55e; }
+.analyze-btn { background: #3b82f6; }
 
-.voice-btn {
-    background: #22c55e;
-}
-
-.analyze-btn {
-    background: #3b82f6;
-}
-
-button:hover {
-    transform: scale(1.05);
-}
-
-/* Listening animation */
-.listening {
-    margin-top: 10px;
-    font-weight: bold;
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    50% { opacity: 0.5; }
-}
-
-/* Result */
 .result {
     margin-top: 20px;
     padding: 15px;
-    border-radius: 12px;
     background: rgba(255,255,255,0.2);
+    border-radius: 10px;
     text-align: left;
 }
 
-/* Risk colors */
 .low { color: #4ade80; }
 .medium { color: #facc15; }
 .high { color: #f87171; }
-
-/* Loader */
-.loader {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-/* Tags */
-.tag {
-    background: rgba(255,255,255,0.3);
-    padding: 5px 10px;
-    border-radius: 8px;
-    margin-right: 5px;
-    display: inline-block;
-}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-    <h1>🩺 NiraVaani</h1>
-    <p>AI Clinical Assistant</p>
+<h2>🩺 NiraVaani</h2>
+<p>Speak in Tamil or English</p>
 
-    <input type="text" id="symptoms" placeholder="Speak or type symptoms">
+<input type="text" id="symptoms">
 
-    <button class="voice-btn" onclick="startVoice()">🎤 Speak</button>
-    <div id="listeningText" class="listening"></div>
+<button class="voice-btn" onclick="startVoice()">🎤 Speak</button>
+<button class="analyze-btn" onclick="getPrediction()">Analyze</button>
 
-    <button class="analyze-btn" onclick="getPrediction()">Analyze</button>
-
-    <div id="loader" class="loader"></div>
-    <div id="result" class="result"></div>
+<div id="result" class="result"></div>
 </div>
 
 <script>
 
-// 🎤 Voice
+// 🎤 Voice (Tamil + English)
 function startVoice() {
-    if (!('webkitSpeechRecognition' in window)) {
-        alert("Use Chrome for voice feature");
-        return;
-    }
-
     const recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-IN";
-
-    document.getElementById("listeningText").innerText = "Listening... 🎙️";
+    recognition.lang = "ta-IN";
 
     recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById("symptoms").value = transcript;
-        document.getElementById("listeningText").innerText = "";
+        document.getElementById("symptoms").value =
+            event.results[0][0].transcript;
     };
 
     recognition.start();
 }
 
-// 🤖 Prediction
-async function getPrediction() {
-    const text = document.getElementById("symptoms").value;
+// 🌍 Translation Layer
+function translate(text) {
+    text = text.toLowerCase();
 
-    document.getElementById("loader").innerText = "Analyzing... ⏳";
+    if (text.includes("காய்ச்சல்") || text.includes("fever"))
+        return "fever";
+
+    if (text.includes("வலி") || text.includes("pain"))
+        return "pain";
+
+    if (text.includes("மயக்கம்") || text.includes("dizzy"))
+        return "dizzy";
+
+    if (text.includes("சோர்வு") || text.includes("weak"))
+        return "weak";
+
+    return text;
+}
+
+// 🤖 API Call
+async function getPrediction() {
+    let text = document.getElementById("symptoms").value;
+    text = translate(text);
 
     const response = await fetch("http://127.0.0.1:5000/predict", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ text: text })
     });
 
     const data = await response.json();
 
-    document.getElementById("loader").innerText = "";
-
-    // Symptoms tags
-    let symptomsHTML = "";
-    data.symptoms.forEach(sym => {
-        symptomsHTML += `<span class="tag">${sym}</span>`;
-    });
-
     document.getElementById("result").innerHTML = `
-        <h3>🧾 Result</h3>
-
-        <p><b>Symptoms:</b><br>${symptomsHTML}</p>
-
-        <p><b>Duration:</b> ${data.duration}</p>
-
-        <p><b>Risk Level:</b> 
-            <span class="${data.risk}">${data.risk.toUpperCase()}</span>
-        </p>
-
-        <p><b>Explanation:</b> ${data.explanation}</p>
-
+        <p><b>Symptoms:</b> ${data.symptoms.join(", ")}</p>
+        <p><b>Risk:</b> <span class="${data.risk}">${data.risk}</span></p>
+        <p>${data.explanation}</p>
         <p><b>History:</b> ${data.history_flag}</p>
-
         <p><b>Suggestion:</b> ${data.follow_up}</p>
     `;
 }
