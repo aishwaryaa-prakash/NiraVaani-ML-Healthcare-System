@@ -1,78 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>NiraVaani Healthcare Assistant</title>
+<meta charset="UTF-8">
+<title>NiraVaani AI</title>
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #f5f7fa;
-            text-align: center;
-            padding: 50px;
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            width: 400px;
-            margin: auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+body {
+    font-family: 'Segoe UI', sans-serif;
+    height: 100vh;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        input {
-            width: 90%;
-            padding: 10px;
-            margin-top: 10px;
-        }
+/* Glass card */
+.container {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    padding: 40px;
+    border-radius: 20px;
+    width: 450px;
+    color: white;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    text-align: center;
+}
 
-        button {
-            padding: 10px 15px;
-            margin-top: 10px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+/* Input */
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    margin-top: 10px;
+    outline: none;
+}
 
-        .voice-btn {
-            background: #28a745;
-            margin-left: 5px;
-        }
+/* Buttons */
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    margin-top: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
 
-        .output {
-            margin-top: 20px;
-            text-align: left;
-        }
-    </style>
+.voice-btn {
+    background: #22c55e;
+}
+
+.analyze-btn {
+    background: #3b82f6;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+/* Listening animation */
+.listening {
+    margin-top: 10px;
+    font-weight: bold;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0.5; }
+}
+
+/* Result */
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.2);
+    text-align: left;
+}
+
+/* Risk colors */
+.low { color: #4ade80; }
+.medium { color: #facc15; }
+.high { color: #f87171; }
+
+/* Loader */
+.loader {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* Tags */
+.tag {
+    background: rgba(255,255,255,0.3);
+    padding: 5px 10px;
+    border-radius: 8px;
+    margin-right: 5px;
+    display: inline-block;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
-    <h2>🩺 NiraVaani</h2>
-    <p>Enter your symptoms:</p>
+    <h1>🩺 NiraVaani</h1>
+    <p>AI Clinical Assistant</p>
 
-    <input type="text" id="symptoms" placeholder="e.g. fever for 3 days">
+    <input type="text" id="symptoms" placeholder="Speak or type symptoms">
 
-    <br>
-
-    <!-- Voice Button -->
     <button class="voice-btn" onclick="startVoice()">🎤 Speak</button>
+    <div id="listeningText" class="listening"></div>
 
-    <br>
+    <button class="analyze-btn" onclick="getPrediction()">Analyze</button>
 
-    <button onclick="getPrediction()">Analyze</button>
-
-    <div class="output" id="result"></div>
+    <div id="loader" class="loader"></div>
+    <div id="result" class="result"></div>
 </div>
 
 <script>
 
+// 🎤 Voice
+function startVoice() {
+    if (!('webkitSpeechRecognition' in window)) {
+        alert("Use Chrome for voice feature");
+        return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-IN";
+
+    document.getElementById("listeningText").innerText = "Listening... 🎙️";
+
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("symptoms").value = transcript;
+        document.getElementById("listeningText").innerText = "";
+    };
+
+    recognition.start();
+}
+
+// 🤖 Prediction
 async function getPrediction() {
     const text = document.getElementById("symptoms").value;
+
+    document.getElementById("loader").innerText = "Analyzing... ⏳";
 
     const response = await fetch("http://127.0.0.1:5000/predict", {
         method: "POST",
@@ -84,40 +164,31 @@ async function getPrediction() {
 
     const data = await response.json();
 
+    document.getElementById("loader").innerText = "";
+
+    // Symptoms tags
+    let symptomsHTML = "";
+    data.symptoms.forEach(sym => {
+        symptomsHTML += `<span class="tag">${sym}</span>`;
+    });
+
     document.getElementById("result").innerHTML = `
         <h3>🧾 Result</h3>
-        <p><b>Symptoms:</b> ${data.symptoms.join(", ")}</p>
+
+        <p><b>Symptoms:</b><br>${symptomsHTML}</p>
+
         <p><b>Duration:</b> ${data.duration}</p>
-        <p><b>Risk Level:</b> ${data.risk}</p>
+
+        <p><b>Risk Level:</b> 
+            <span class="${data.risk}">${data.risk.toUpperCase()}</span>
+        </p>
+
         <p><b>Explanation:</b> ${data.explanation}</p>
+
+        <p><b>History:</b> ${data.history_flag}</p>
+
+        <p><b>Suggestion:</b> ${data.follow_up}</p>
     `;
-}
-
-
-// 🎤 Voice Recognition
-function startVoice() {
-    if (!('webkitSpeechRecognition' in window)) {
-        alert("Voice recognition not supported in this browser. Please use Chrome.");
-        return;
-    }
-
-    const recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-US";
-
-    recognition.onstart = function() {
-        console.log("Voice recognition started...");
-    };
-
-    recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById("symptoms").value = transcript;
-    };
-
-    recognition.onerror = function(event) {
-        console.error("Error occurred:", event.error);
-    };
-
-    recognition.start();
 }
 
 </script>
