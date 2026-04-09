@@ -385,6 +385,17 @@
                         <div class="bento-title">Suggested Pathway</div>
                         <div class="bento-value" id="resSuggestion">-</div>
                     </div>
+                    <!-- 🌍 Location Insight -->
+                   <div class="bento-card bento-large">
+                      <div class="bento-title">Location Insight</div>
+                      <div class="bento-value" id="resLocation"></div>
+                 </div>
+
+                <!-- 🧾 Doctor Summary -->
+                <div class="bento-card bento-large">
+                  <div class="bento-title">Doctor Summary</div>
+                 <div class="bento-value" id="resSummary" style="white-space: pre-line;"></div>
+               </div>
                 </div>
             </div>
 
@@ -620,6 +631,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("resSymptoms").innerText = data.symptoms.join(", ");
         document.getElementById("resExplanation").innerText = data.explanation;
         document.getElementById("resSuggestion").innerText = data.follow_up;
+        document.getElementById("resLocation").innerText = data.location_insight;
+        document.getElementById("resSummary").innerText = data.summary;
         
         const badge = document.getElementById("resRiskBadge");
         badge.className = `risk-badge risk-${data.risk.toLowerCase()}`;
@@ -627,7 +640,67 @@ document.addEventListener("DOMContentLoaded", () => {
         
         resultsArea.classList.add('visible');
     }
+    // ================================
+    // 🔥 DASHBOARD INTEGRATION (ADDED)
+    // ================================
 
+    async function loadAnalytics() {
+    try {
+        const res = await fetch("http://127.0.0.1:5000/analytics");
+        const data = await res.json();
+
+        document.querySelectorAll(".stat-val")[0].innerText = data.total_predictions;
+        document.querySelectorAll(".stat-val")[1].innerText = data.accuracy + "%";
+        document.querySelectorAll(".stat-val")[2].innerText = data.total_predictions;
+    } catch (e) {
+        console.warn("Analytics API failed");
+    }
+    }
+
+    async function loadRecentScans() {
+    try {
+        const res = await fetch("http://127.0.0.1:5000/recent");
+        const data = await res.json();
+
+        const panel = document.querySelector(".activity-panel");
+        const items = panel.querySelectorAll(".activity-item");
+
+        items.forEach(item => item.remove());
+
+        data.forEach(d => {
+            const div = document.createElement("div");
+            div.className = "activity-item";
+
+            div.innerHTML = `
+                <div>
+                    <div style="font-weight:500;">${d.id}</div>
+                    <div class="muted">${d.symptoms.join(", ")}</div>
+                </div>
+                <div class="risk-badge risk-${d.risk.toLowerCase()}" style="font-size:0.75rem;">
+                    ${d.risk}
+                </div>
+            `;
+
+            panel.appendChild(div);
+        });
+
+    } catch (e) {
+        console.warn("Recent API failed");
+    }
+}
+
+   const originalDisplay = displayResults;
+
+   displayResults = function(data) {
+    originalDisplay(data);
+    loadAnalytics();
+    loadRecentScans();
+  };
+
+  setTimeout(() => {
+    loadAnalytics();
+    loadRecentScans();
+  }, 500);
 });
 </script>
 
